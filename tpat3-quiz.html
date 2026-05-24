@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPAT3 SciTech Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060912;
+    --surface: #0d1424;
+    --card: #111827;
+    --accent: #00f0ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --correct: #10b981;
+    --wrong: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: rgba(0,240,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── STARS BACKGROUND ── */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 90%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 85%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 35%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 55% 60%, rgba(0,240,255,.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 35% 25%, rgba(124,58,237,.3) 0%, transparent 100%);
+  }
+
+  /* ── NEBULA GLOW ── */
+  .nebula {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 30%, rgba(0,240,255,.05) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 70%, rgba(124,58,237,.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 50% at 50% 50%, rgba(245,158,11,.03) 0%, transparent 70%);
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; position: relative; z-index: 1; }
+  .page.active { display: flex; }
+
+  /* ══════════════════════════════
+     LOBBY PAGE
+  ══════════════════════════════ */
+  #lobby {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .lobby-inner {
+    max-width: 680px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,240,255,.08);
+    border: 1px solid rgba(0,240,255,.25);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    animation: fadeDown .6s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  /* Icon ring */
+  .icon-ring {
+    position: relative;
+    width: 120px; height: 120px;
+    margin: 0 auto 32px;
+    animation: fadeDown .6s .1s ease both;
+  }
+  .icon-ring-outer {
+    position: absolute; inset: 0;
+    border: 1.5px solid rgba(0,240,255,.2);
+    border-radius: 50%;
+    animation: spin 12s linear infinite;
+  }
+  .icon-ring-outer::before {
+    content:'';
+    position: absolute;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    top: 50%; left: -4px;
+    transform: translateY(-50%);
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .icon-ring-inner {
+    position: absolute; inset: 16px;
+    border: 1px solid rgba(124,58,237,.3);
+    border-radius: 50%;
+    animation: spin 8s linear infinite reverse;
+  }
+  .icon-center {
+    position: absolute; inset: 28px;
+    background: linear-gradient(135deg, rgba(0,240,255,.15), rgba(124,58,237,.15));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+
+  /* Title */
+  .lobby-title {
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    animation: fadeDown .6s .2s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  .title-line1 { display: block; color: var(--text); }
+  .title-line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .lobby-sub {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.7;
+    animation: fadeDown .6s .3s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 36px 0;
+    animation: fadeDown .6s .4s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-box::before {
+    content:'';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: .5px;
+  }
+
+  /* Topics */
+  .topics-wrap {
+    margin-bottom: 36px;
+    animation: fadeDown .6s .5s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  .topics-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  .topics-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .topic-tag {
+    background: rgba(124,58,237,.12);
+    border: 1px solid rgba(124,58,237,.25);
+    color: #a78bfa;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Start button */
+  .btn-start {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(0,240,255,.15), rgba(124,58,237,.2));
+    border: 1px solid rgba(0,240,255,.4);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 16px 40px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all .3s ease;
+    overflow: hidden;
+    animation: fadeDown .6s .6s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  .btn-start::before {
+    content:'';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,240,255,.2), rgba(124,58,237,.2));
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .btn-start:hover::before { opacity: 1; }
+  .btn-start:hover {
+    box-shadow: 0 0 30px rgba(0,240,255,.25);
+    transform: translateY(-2px);
+    border-color: rgba(0,240,255,.7);
+  }
+  .btn-start:active { transform: translateY(0); }
+  .btn-arrow {
+    font-size: 18px;
+    transition: transform .3s;
+  }
+  .btn-start:hover .btn-arrow { transform: translateX(4px); }
+
+  /* Divider line */
+  .deco-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 28px 0;
+  }
+
+  /* ══════════════════════════════
+     QUIZ PAGE
+  ══════════════════════════════ */
+  #quiz-wrapper {
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 28px 20px 60px;
+  }
+
+  .quiz-header {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .q-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width .5s ease;
+  }
+
+  /* Question card */
+  .q-card {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .q-topic-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,158,11,.1);
+    border: 1px solid rgba(245,158,11,.25);
+    color: var(--accent3);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: clamp(17px, 3vw, 20px);
+    font-weight: 700;
+    line-height: 1.65;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  /* Options */
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .option-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all .25s ease;
+    text-align: left;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+  .option-btn::before {
+    content:'';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(0,240,255,.06), transparent);
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .option-btn:hover:not(:disabled)::before { opacity: 1; }
+  .option-btn:hover:not(:disabled) {
+    border-color: rgba(0,240,255,.35);
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 var(--accent), 0 4px 20px rgba(0,240,255,.08);
+  }
+
+  .option-label {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all .25s;
+  }
+
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(16,185,129,.12);
+    transform: none;
+    box-shadow: 0 0 20px rgba(16,185,129,.15);
+  }
+  .option-btn.correct .option-label {
+    background: var(--correct);
+    border-color: var(--correct);
+    color: #000;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(239,68,68,.1);
+    transform: none;
+  }
+  .option-btn.wrong .option-label {
+    background: var(--wrong);
+    border-color: var(--wrong);
+    color: #fff;
+  }
+
+  .option-btn.dimmed {
+    opacity: .4;
+    transform: none;
+    cursor: default;
+  }
+  .option-btn.dimmed::before { display: none; }
+
+  /* Feedback */
+  .feedback-box {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+    border-left: 3px solid var(--accent);
+    display: none;
+    animation: slideUp .4s ease;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { border-left-color: var(--correct); }
+  .feedback-box.wrong-fb { border-left-color: var(--wrong); }
+
+  .fb-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .fb-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .correct-fb .fb-icon { background: rgba(16,185,129,.2); }
+  .wrong-fb .fb-icon { background: rgba(239,68,68,.2); }
+  .fb-title {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .correct-fb .fb-title { color: var(--correct); }
+  .wrong-fb .fb-title { color: var(--wrong); }
+  .fb-body {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.7;
+  }
+  .fb-body strong { color: var(--text); font-weight: 600; }
+
+  /* Next button */
+  .btn-next {
+    display: none;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(0,240,255,.1), rgba(124,58,237,.15));
+    border: 1px solid rgba(0,240,255,.35);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .25s;
+    animation: slideUp .4s ease;
+  }
+  .btn-next.show { display: block; }
+  .btn-next:hover {
+    background: linear-gradient(135deg, rgba(0,240,255,.18), rgba(124,58,237,.22));
+    box-shadow: 0 0 20px rgba(0,240,255,.15);
+  }
+
+  /* ══════════════════════════════
+     RESULT PAGE
+  ══════════════════════════════ */
+  #result-page {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .result-inner {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .result-ring {
+    position: relative;
+    width: 140px; height: 140px;
+    margin: 0 auto 32px;
+  }
+  .result-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .result-track {
+    fill: none;
+    stroke: rgba(255,255,255,.06);
+    stroke-width: 8;
+  }
+  .result-arc {
+    fill: none;
+    stroke: url(#arcGrad);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease;
+  }
+  .result-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .result-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .result-denom {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .result-grade {
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .result-msg {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .result-breakdown {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .breakdown-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: 13px;
+  }
+  .breakdown-row:last-child { border: none; }
+  .bk-num { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px; width: 20px; }
+  .bk-text { flex: 1; color: #94a3b8; }
+  .bk-icon { font-size: 16px; }
+
+  .btn-retry {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(0,240,255,.3);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .25s;
+  }
+  .btn-retry:hover {
+    background: rgba(0,240,255,.08);
+    box-shadow: 0 0 20px rgba(0,240,255,.12);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .3; }
+  }
+
+  /* Question page animation */
+  .q-card { animation: slideUp .45s ease; }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="nebula"></div>
+
+<!-- ══ LOBBY ══ -->
+<div id="lobby" class="page active">
+  <div class="lobby-inner">
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      TPAT3 &nbsp;·&nbsp; SCI & TECH
+    </div>
+
+    <div class="icon-ring">
+      <div class="icon-ring-outer"></div>
+      <div class="icon-ring-inner"></div>
+      <div class="icon-center">🔭</div>
+    </div>
+
+    <h1 class="lobby-title">
+      <span class="title-line1">ทดสอบความรู้</span>
+      <span class="title-line2">วิทย์ &amp; เทค</span>
+    </h1>
+
+    <p class="lobby-sub">
+      คำถาม 5 ข้อ · 5 ตัวเลือก<br>
+      ระดับมัธยมปลาย เน้นข่าวสาร วิทยาศาสตร์ และเทคโนโลยีร่วมสมัย
+    </p>
+
+    <div class="deco-line"></div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">5</div>
+        <div class="stat-label">คำถาม</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">5</div>
+        <div class="stat-label">ตัวเลือก/ข้อ</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">TPAT3</div>
+        <div class="stat-label">ระดับ</div>
+      </div>
+    </div>
+
+    <div class="topics-wrap">
+      <div class="topics-title">หัวข้อที่ครอบคลุม</div>
+      <div class="topics-grid">
+        <span class="topic-tag">🔭 อวกาศ</span>
+        <span class="topic-tag">🤖 ปัญญาประดิษฐ์</span>
+        <span class="topic-tag">⚛️ Quantum Computing</span>
+        <span class="topic-tag">💉 mRNA Vaccine</span>
+        <span class="topic-tag">🔋 พลังงานสะอาด</span>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">
+      เริ่มทำแบบทดสอบ
+      <span class="btn-arrow">→</span>
+    </button>
+
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div id="quiz-wrapper" class="page">
+  <div class="quiz-header">
+    <span class="q-counter" id="q-counter">ข้อ 1 / 5</span>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="q-card" id="q-card">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- ══ RESULT ══ -->
+<div id="result-page" class="page">
+  <div class="result-inner">
+    <div class="result-ring">
+      <svg class="result-svg" viewBox="0 0 140 140">
+        <defs>
+          <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00f0ff"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <circle class="result-track" cx="70" cy="70" r="58"/>
+        <circle class="result-arc" id="result-arc" cx="70" cy="70" r="58"
+          stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+      </svg>
+      <div class="result-center">
+        <span class="result-num" id="score-num">0</span>
+        <span class="result-denom">/ 5</span>
+      </div>
+    </div>
+
+    <div class="result-grade" id="result-grade"></div>
+    <p class="result-msg" id="result-msg"></p>
+
+    <div class="result-breakdown" id="result-breakdown"></div>
+
+    <button class="btn-retry" onclick="goLobby()">← กลับหน้าหลัก</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    topic: "🔭 กล้องโทรทรรศน์อวกาศ",
+    q: "กล้องโทรทรรศน์อวกาศ James Webb (JWST) ถูกออกแบบให้ตรวจจับแสงในช่วงคลื่นใดเป็นหลัก และเหตุใดจึงเลือกช่วงคลื่นนั้น?",
+    opts: [
+      "แสงอัลตราไวโอเลต เพราะดาวฤกษ์อายุน้อยแผ่คลื่นนี้มากที่สุด",
+      "แสงที่มองเห็นได้ (Visible light) เพราะตาของมนุษย์รับได้",
+      "แสงอินฟราเรด เพราะวัตถุห่างไกลมี Redshift ทำให้แสงเลื่อนมายังความยาวคลื่นยาวขึ้น",
+      "คลื่นวิทยุ เพราะทะลุผ่านกลุ่มฝุ่นในอวกาศได้ดีที่สุด",
+      "รังสีเอกซ์ เพราะหลุมดำแผ่รังสีนี้รุนแรงมาก"
+    ],
+    correct: 2,
+    explain: `JWST ออกแบบมาให้ตรวจจับ <strong>แสงอินฟราเรด (Near- และ Mid-Infrared)</strong> เป็นหลัก เนื่องจากจักรวาลขยายตัว แสงจากกาแล็กซีที่อยู่ไกลมากจะเกิด <strong>Redshift</strong> ซึ่งเลื่อนแสงมาอยู่ในช่วงอินฟราเรด นอกจากนี้แสงอินฟราเรดยังทะลุผ่านฝุ่นระหว่างดวงดาวได้ดีกว่า ทำให้มองเห็นดาวฤกษ์และระบบดาวเคราะห์ที่เพิ่งก่อตัวได้`
+  },
+  {
+    topic: "🤖 ปัญญาประดิษฐ์",
+    q: "โมเดลภาษาขนาดใหญ่ (Large Language Model: LLM) เช่น ChatGPT ทำงานโดยอาศัยสถาปัตยกรรมใดเป็นพื้นฐาน?",
+    opts: [
+      "Convolutional Neural Network (CNN) ที่ออกแบบมาสำหรับวิเคราะห์ภาพ",
+      "Recurrent Neural Network (RNN) แบบดั้งเดิมที่ประมวลผลทีละตัวอักษร",
+      "Transformer ที่ใช้กลไก Self-Attention ประมวลผลทุกส่วนของข้อความพร้อมกัน",
+      "Decision Tree ที่แยกข้อมูลด้วยเงื่อนไข if-else",
+      "Genetic Algorithm ที่จำลองการวิวัฒนาการทางชีววิทยา"
+    ],
+    correct: 2,
+    explain: `LLM อย่าง ChatGPT ใช้สถาปัตยกรรม <strong>Transformer</strong> ที่เสนอในงาน "Attention is All You Need" (2017) กลไกสำคัญคือ <strong>Self-Attention</strong> ซึ่งช่วยให้โมเดลมองความสัมพันธ์ของทุกคำในประโยคพร้อมกัน ต่างจาก RNN ที่อ่านทีละลำดับและมักลืมข้อมูลห่างไกล ทำให้ Transformer เรียนรู้บริบทได้ดีกว่ามาก`
+  },
+  {
+    topic: "⚛️ Quantum Computing",
+    q: "หน่วยประมวลผลพื้นฐานของคอมพิวเตอร์ควอนตัมเรียกว่า Qubit สิ่งใดต่อไปนี้อธิบายความสามารถพิเศษของ Qubit ได้ถูกต้องที่สุด?",
+    opts: [
+      "Qubit สามารถเก็บค่าได้มากกว่า 2 สถานะ คือ 0, 1 และ 2 พร้อมกันได้",
+      "Qubit ทำงานเร็วกว่า Bit ธรรมดาเพราะใช้ไฟฟ้าน้อยกว่า",
+      "Qubit อยู่ในสถานะ Superposition คือแทน 0 และ 1 พร้อมกันได้จนกว่าจะถูกวัด",
+      "Qubit ไม่มีข้อผิดพลาด (error-free) เพราะใช้หลักการควอนตัมควบคุม",
+      "Qubit ต้องทำงานที่อุณหภูมิสูงเพื่อรักษาพลังงานควอนตัม"
+    ],
+    correct: 2,
+    explain: `จุดเด่นของ Qubit คือ <strong>Superposition</strong> ซึ่งทำให้มันแทนสถานะ 0 และ 1 พร้อมกันได้ก่อนการวัด เมื่อนำ Qubit หลายตัวมาผสมกัน (Entanglement) จะสามารถประมวลผลหลายสถานะได้พร้อมกัน ช่วยแก้ปัญหาบางประเภทได้เร็วกว่าคอมพิวเตอร์ธรรมดามาก ในความเป็นจริง Qubit มีความคลาดเคลื่อนสูงและต้องทำงานที่อุณหภูมิ <strong>ใกล้ศูนย์สัมบูรณ์ (~ -273°C)</strong>`
+  },
+  {
+    topic: "💉 mRNA Vaccine",
+    q: "วัคซีน mRNA สำหรับ COVID-19 ทำงานในร่างกายอย่างไร?",
+    opts: [
+      "ฉีดไวรัสที่ตายแล้วเข้าร่างกายเพื่อให้ภูมิคุ้มกันจดจำ",
+      "ใส่ยีนของไวรัสเข้าไปใน DNA ของเซลล์มนุษย์โดยตรง",
+      "นำ mRNA ที่มีรหัสโปรตีน Spike เข้าเซลล์ เซลล์ผลิตโปรตีนนี้แล้วร่างกายสร้างภูมิคุ้มกัน",
+      "กระตุ้นให้ร่างกายผลิตไวรัสจำลองที่ไม่อันตราย",
+      "ปิดกั้นตัวรับ ACE2 ไม่ให้ไวรัสจับได้"
+    ],
+    correct: 2,
+    explain: `วัคซีน mRNA ส่ง <strong>mRNA สายสั้น</strong> เข้าเซลล์ของร่างกาย ซึ่งจะถูกแปลรหัสเป็น <strong>โปรตีน Spike</strong> ของ SARS-CoV-2 ระบบภูมิคุ้มกันจดจำโปรตีนนี้และสร้างแอนติบอดี mRNA จะสลายตัวภายในไม่กี่วัน <strong>ไม่เข้าไปเปลี่ยน DNA</strong> ในนิวเคลียสของเซลล์ นักวิทยาศาสตร์ Katalin Karikó และ Drew Weissman ได้รับรางวัลโนเบลสาขาสรีรวิทยาปี 2023 จากการค้นพบนี้`
+  },
+  {
+    topic: "🔋 แบตเตอรี่ยานยนต์ไฟฟ้า",
+    q: "แบตเตอรี่ Solid-State (ของแข็ง) ที่กำลังพัฒนาสำหรับรถยนต์ไฟฟ้า มีข้อได้เปรียบเหนือแบตเตอรี่ลิเทียมไอออน (Li-ion) แบบเหลวในด้านใดมากที่สุด?",
+    opts: [
+      "ราคาถูกกว่ามากเพราะใช้วัสดุที่หาได้ง่าย",
+      "น้ำหนักเบากว่าเพราะไม่มีส่วนประกอบของโลหะลิเทียม",
+      "พลังงานจำเพาะสูงกว่า ชาร์จเร็วกว่า และมีความปลอดภัยสูงกว่าเพราะไม่ใช่ของเหลวไวไฟ",
+      "ชาร์จได้ด้วยพลังงานแสงอาทิตย์โดยตรงโดยไม่ต้องใช้แผงโซลาร์แยก",
+      "สามารถนำกลับมาใช้ใหม่ได้ 100% โดยไม่เกิดของเสีย"
+    ],
+    correct: 2,
+    explain: `แบตเตอรี่ Solid-State ใช้ <strong>อิเล็กโทรไลต์แบบของแข็ง</strong> แทนของเหลวไวไฟ ส่งผลให้ปลอดภัยกว่า (ไม่รั่ว ไม่ระเบิด) มี <strong>พลังงานจำเพาะ (Energy Density) สูงกว่า</strong> Li-ion ทั่วไป และรองรับการชาร์จเร็วด้วย Li-metal anode ได้ดีกว่า อย่างไรก็ตาม ปัจจุบันยังมีต้นทุนสูงและยังอยู่ระหว่างพัฒนาสู่การผลิตเชิงพาณิชย์`
+  }
+];
+
+let current = 0;
+let score = 0;
+let results = [];
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startQuiz() {
+  current = 0; score = 0; results = [];
+  showPage('quiz-wrapper');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  const pct = (current / 5) * 100;
+  document.getElementById('q-counter').textContent = `ข้อ ${current + 1} / 5`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const labels = ['A','B','C','D','E'];
+  const optsHTML = q.opts.map((opt, i) => `
+    <button class="option-btn" onclick="selectAnswer(${i})" id="opt-${i}">
+      <span class="option-label" id="lbl-${i}">${labels[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('q-card').innerHTML = `
+    <div class="q-topic-tag">${q.topic}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options-list">${optsHTML}</div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+      ${current < 4 ? 'ข้อถัดไป →' : 'ดูผลลัพธ์ →'}
+    </button>
+  `;
+}
+
+function selectAnswer(chosen) {
+  const q = QUESTIONS[current];
+  const correct = q.correct;
+  const isCorrect = chosen === correct;
+
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === chosen && !isCorrect) btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `
+    <div class="fb-header">
+      <div class="fb-icon">${isCorrect ? '✅' : '❌'}</div>
+      <div class="fb-title">${isCorrect ? 'ถูกต้อง!' : 'ยังไม่ถูกต้อง'}</div>
+    </div>
+    <div class="fb-body">${isCorrect
+      ? '🎉 ยอดเยี่ยม! คุณเข้าใจหลักการนี้ได้ถูกต้องแล้ว'
+      : `<strong>เฉลย:</strong> ${q.explain}`
+    }</div>
+  `;
+
+  const next = document.getElementById('btn-next');
+  next.classList.add('show');
+
+  if (isCorrect) score++;
+  results.push({ q: q.q, correct: isCorrect, topic: q.topic });
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= 5) showResult();
+  else { renderQuestion(); }
+}
+
+function showResult() {
+  showPage('result-page');
+  document.getElementById('score-num').textContent = score;
+
+  const pct = score / 5;
+  const circumference = 364.4;
+  const offset = circumference * (1 - pct);
+  setTimeout(() => {
+    document.getElementById('result-arc').style.strokeDashoffset = offset;
+  }, 100);
+
+  let grade, msg;
+  if (score === 5) { grade = '🌟 ยอดเยี่ยมมาก!'; msg = 'คุณตอบถูกทุกข้อ พร้อมมากสำหรับ TPAT3!'; }
+  else if (score >= 4) { grade = '🔥 ดีมาก!'; msg = 'เก่งมาก! อีกนิดก็ perfect แล้ว'; }
+  else if (score >= 3) { grade = '👍 ผ่านได้'; msg = 'ดีพอสมควร ลองทบทวนหัวข้อที่พลาดเพิ่มเติม'; }
+  else if (score >= 2) { grade = '📚 ต้องฝึกเพิ่ม'; msg = 'ยังมีช่องว่างพอสมควร ลองศึกษาข่าววิทย์-เทคให้มากขึ้น'; }
+  else { grade = '💪 สู้ต่อไป!'; msg = 'อย่าท้อ! ลองทำใหม่หลังจากอ่านเพิ่มเติม'; }
+
+  document.getElementById('result-grade').textContent = grade;
+  document.getElementById('result-msg').textContent = msg;
+
+  const bd = results.map((r, i) => `
+    <div class="breakdown-row">
+      <span class="bk-num">${i+1}</span>
+      <span class="bk-text">${r.topic}</span>
+      <span class="bk-icon">${r.correct ? '✅' : '❌'}</span>
+    </div>
+  `).join('');
+  document.getElementById('result-breakdown').innerHTML =
+    `<div class="breakdown-title">สรุปผลแต่ละข้อ</div>` + bd;
+}
+
+function goLobby() {
+  showPage('lobby');
+}
+</script>
+</body>
+</html>
